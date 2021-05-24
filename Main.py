@@ -75,9 +75,9 @@ def fitness_function(string: str):
         if main_str[i + 1] == 'G' and string[i - 1] == 1:
             additional_score += 1
         # over jump reduces score
-        # if i != len(main_str) - 2:
-        #     if main_str[i + 1] != 'G' and main_str[i + 2] != 'G' and string[i] == 1:
-        # additional_score -= 0.5
+        if i != len(main_str) - 2:
+            if main_str[i + 1] != 'G' and main_str[i + 2] != 'G' and string[i] == 1:
+                additional_score -= 0.5
 
     score += mushroom + additional_score
     # my_list.append(score)
@@ -96,18 +96,18 @@ def give_probability(string: str):
     return fitness_function(string) / sum_of_fitness
 
 
-def delete_string():
-    avg = 0
-    for i in range(len(all_strings)):
-        avg += fitness_function(all_strings[i])
-    avg /= len(all_strings)
-    for i in range(len(all_strings)):
-        if fitness_function(all_strings[i]) < avg:
-            all_strings.pop(i)
+def select_delete_string():
+    for i in range(len(all_chromosomes) - 1):
+        for j in range(len(all_chromosomes) - i - 1):
+            if all_chromosomes[j].fitness <= all_chromosomes[j + 1].fitness:
+                all_chromosomes[j], all_chromosomes[j + 1] = all_chromosomes[j + 1], all_chromosomes[j]
+
+    for i in range(int(len(all_chromosomes) / 2)):
+        all_chromosomes.pop()
 
 
 def crossover(string1: str, string2: str):
-    pass
+    string1
 
 
 # file_name = "level1.txt"
@@ -119,17 +119,27 @@ initial_population(main_str)
 for k in range(len(initial_strings)):
     all_strings.append(initial_strings[k])
 
-print(initial_strings)
-print("[", end="")
-for k in range(len(main_str)):
-    print(main_str[k], end=", ")
-print()
+for k in range(len(initial_strings)):
+    print("Hi: ", initial_strings[k], fitness_function(initial_strings[k]))
+# print("[", end="")
+# for k in range(len(main_str)):
+#     print(main_str[k], end=", ")
+# print()
+
 # print(initial_strings[0])
 # the_list = fitness_function(initial_strings[0])
 # print("Score:", the_list[0], ", Steps:", the_list[1], ", Win:", the_list[2], ", Mushroom:", the_list[3],
 #       ", Additional:", the_list[4])
 
-delete_string()
 for k in range(len(all_strings)):
     all_chromosomes.append(
         Chromosome(all_strings[k], fitness_function(all_strings[k]), give_probability(all_strings[k])))
+
+for k in all_chromosomes:
+    print(k.string, k.fitness, k.probability)
+
+print("---------------------")
+select_delete_string()
+
+for k in all_chromosomes:
+    print(k.string, k.fitness, k.probability)
