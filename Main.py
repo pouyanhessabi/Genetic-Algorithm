@@ -143,3 +143,6 @@ select_delete_string()
 
 for k in all_chromosomes:
     print(k.string, k.fitness, k.probability)
+
+
+print("selection completed")
