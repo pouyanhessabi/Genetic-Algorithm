@@ -1,5 +1,5 @@
 import random
-
+from itertools import filterfalse
 main_str: str
 initial_strings = []
 all_strings = []
@@ -7,17 +7,16 @@ all_chromosomes = []
 
 
 class Chromosome:
-    def __init__(self, string: str, fitness: int, probability):
+    def __init__(self, string: str, fitness: int):
         self.string = string
         self.fitness = fitness
-        self.probability = probability
 
 
 def initial_population(string: str):
     length = len(string)
     random_list = []
     tmp_list = [0] * 3 + [1] + [2]
-    for i in range(6):
+    for i in range(200):
         for j in range(length):
             random_list.append(random.choice(tmp_list))
         initial_strings.append(random_list)
@@ -101,13 +100,12 @@ def select_delete_string():
         for j in range(len(all_chromosomes) - i - 1):
             if all_chromosomes[j].fitness <= all_chromosomes[j + 1].fitness:
                 all_chromosomes[j], all_chromosomes[j + 1] = all_chromosomes[j + 1], all_chromosomes[j]
-    for k in all_chromosomes:
-        print(k.string, k.fitness, k.probability)
     # remove from all string
     for i in range(int(len(all_chromosomes) / 2), len(all_chromosomes)):
         for j in range(len(all_strings)):
             if all_chromosomes[i].string == all_strings[j]:
-                print("pop: ", all_strings.pop(j))
+                # print("pop: ", all_strings.pop(j))
+                all_strings.pop(j)
                 all_strings.insert(j, "null")
     tmp = 0
     for i in range(len(all_strings)):
@@ -135,23 +133,25 @@ def save_good_gene():
     good_gene = []
     tmp_list = []
     for i in range(len(all_chromosomes)):
-        tmp_list.append(all_chromosomes[i].probability)
+        tmp_list.append(all_chromosomes[i].fitness)
     average = sum(tmp_list) / len(tmp_list)
     for i in all_chromosomes:
-        if i.probability > average:
+        if i.fitness >= average:
             good_gene.append(i)
 
-    return good_gene
+    return list(dict.fromkeys(good_gene))
 
 
 # file_name = "level1.txt"
 # f = open(file_name, "r")
 # main_str = f.readline()
 
-main_str = "____G_ML__G_"
+main_str = "_G_ML_G_"
 initial_population(main_str)
 for k in range(len(initial_strings)):
     all_strings.append(initial_strings[k])
+
+
 # for k in range(len(initial_strings)):
 #     print("initial: ", initial_strings[k], fitness_function(initial_strings[k]))
 # print("[", end="")
@@ -165,28 +165,42 @@ for k in range(len(initial_strings)):
 #       ", Additional:", the_list[4])
 
 
-for k in all_chromosomes:
-    print(k.string, k.fitness, k.probability)
-
-print("---------------------")
-
-
 # print("selection completed\n|||||||\n")
 
 
 def first_method():
-    for i in range(len(all_strings)):
-        all_chromosomes.append(
-            Chromosome(all_strings[i], fitness_function(all_strings[i]), give_probability(all_strings[i])))
     select_delete_string()
+    good_gene = save_good_gene()
+    random_list = random.sample(range(len(all_chromosomes)), (len(all_chromosomes)))
+    combined_string = []
+    for i in range(len(random_list)):
+        # print("first and second", all_chromosomes[i].string, all_chromosomes[random_list[i]].string)
+        combined_string.append(combine_string(all_chromosomes[i].string, all_chromosomes[random_list[i]].string))
+    all_chromosomes.clear()
+    all_strings.clear()
+    for i in range(len(combined_string)):
+        all_strings.append(combined_string[i])
+    for i in range(len(combined_string)):
+        all_chromosomes.append(
+            Chromosome(combined_string[i], fitness_function(combined_string[i])))
+    for i in range(len(good_gene)):
+        all_chromosomes.append(good_gene[i])
 
 
 
-first_method()
 
-print(initial_strings)
-print("---------------------")
-print(all_strings)
-print("---------------------")
-for k in all_chromosomes:
-    print(k.string, k.fitness, k.probability)
+for k in range(len(all_strings)):
+    all_chromosomes.append(
+        Chromosome(all_strings[k], fitness_function(all_strings[k])))
+for k in range(10):
+    print("---------------------\n")
+    avg = 0
+    for z in range(len(all_chromosomes)):
+        avg += all_chromosomes[z].fitness
+    avg = avg / len(all_chromosomes)
+    for z in all_chromosomes:
+        print(z.string, z.fitness)
+    print("avg: ", avg)
+    first_method()
+
+
