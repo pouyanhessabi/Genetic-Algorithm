@@ -1,5 +1,6 @@
 import random
 from itertools import filterfalse
+
 main_str: str
 initial_strings = []
 all_strings = []
@@ -142,6 +143,17 @@ def save_good_gene():
     return list(dict.fromkeys(good_gene))
 
 
+def mutation(string: list):
+    random_index = random.randint(0, len(string) - 1)
+
+    if string[random_index] == 0:
+        tmp = 1
+    else:
+        tmp = 0
+    string[random_index] = tmp
+    return string
+
+
 # file_name = "level1.txt"
 # f = open(file_name, "r")
 # main_str = f.readline()
@@ -185,8 +197,12 @@ def first_method():
             Chromosome(combined_string[i], fitness_function(combined_string[i])))
     for i in range(len(good_gene)):
         all_chromosomes.append(good_gene[i])
-
-
+    # mutation
+    mutation_number = 0.1
+    number = int(len(all_chromosomes) * mutation_number)
+    for i in range(number):
+        tmp_string = mutation(all_chromosomes[i].string)
+        all_chromosomes[i] = Chromosome(tmp_string, fitness_function(tmp_string))
 
 
 for k in range(len(all_strings)):
@@ -202,5 +218,3 @@ for k in range(10):
         print(z.string, z.fitness)
     print("avg: ", avg)
     first_method()
-
-
