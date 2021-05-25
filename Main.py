@@ -107,7 +107,14 @@ def select_delete_string():
 
 
 def crossover(string1: str, string2: str):
-    string1
+    list3 = []
+    if len(string1) != len(string2):
+        print("\n\n|||||Size of lists are not equal||||\n\n")
+    for i in range(int(len(string1) / 2)):
+        list3.append(string1[i])
+    for i in range(int(len(string1) / 2), len(string2)):
+        list3.append(string2[i])
+    return list3
 
 
 # file_name = "level1.txt"
@@ -119,8 +126,8 @@ initial_population(main_str)
 for k in range(len(initial_strings)):
     all_strings.append(initial_strings[k])
 
-for k in range(len(initial_strings)):
-    print("Hi: ", initial_strings[k], fitness_function(initial_strings[k]))
+# for k in range(len(initial_strings)):
+#     print("initial: ", initial_strings[k], fitness_function(initial_strings[k]))
 # print("[", end="")
 # for k in range(len(main_str)):
 #     print(main_str[k], end=", ")
@@ -144,5 +151,6 @@ select_delete_string()
 for k in all_chromosomes:
     print(k.string, k.fitness, k.probability)
 
+print("selection completed\n|||||||\n")
 
-print("selection completed")
+z = crossover(all_chromosomes[3].string, all_chromosomes[4].string)
