@@ -17,7 +17,7 @@ def initial_population(string: str):
     length = len(string)
     random_list = []
     tmp_list = [0] * 3 + [1] + [2]
-    for i in range(10):
+    for i in range(6):
         for j in range(length):
             random_list.append(random.choice(tmp_list))
         initial_strings.append(random_list)
@@ -101,12 +101,26 @@ def select_delete_string():
         for j in range(len(all_chromosomes) - i - 1):
             if all_chromosomes[j].fitness <= all_chromosomes[j + 1].fitness:
                 all_chromosomes[j], all_chromosomes[j + 1] = all_chromosomes[j + 1], all_chromosomes[j]
-
+    for k in all_chromosomes:
+        print(k.string, k.fitness, k.probability)
+    # remove from all string
+    for i in range(int(len(all_chromosomes) / 2), len(all_chromosomes)):
+        for j in range(len(all_strings)):
+            if all_chromosomes[i].string == all_strings[j]:
+                print("pop: ", all_strings.pop(j))
+                all_strings.insert(j, "null")
+    tmp = 0
+    for i in range(len(all_strings)):
+        if all_strings[i] == "null":
+            tmp += 1
+    for i in range(tmp):
+        all_strings.remove("null")
+    # remove from all chromosomes
     for i in range(int(len(all_chromosomes) / 2)):
         all_chromosomes.pop()
 
 
-def crossover(string1: str, string2: str):
+def combine_string(string1: str, string2: str):
     list3 = []
     if len(string1) != len(string2):
         print("\n\n|||||Size of lists are not equal||||\n\n")
@@ -117,6 +131,19 @@ def crossover(string1: str, string2: str):
     return list3
 
 
+def save_good_gene():
+    good_gene = []
+    tmp_list = []
+    for i in range(len(all_chromosomes)):
+        tmp_list.append(all_chromosomes[i].probability)
+    average = sum(tmp_list) / len(tmp_list)
+    for i in all_chromosomes:
+        if i.probability > average:
+            good_gene.append(i)
+
+    return good_gene
+
+
 # file_name = "level1.txt"
 # f = open(file_name, "r")
 # main_str = f.readline()
@@ -125,7 +152,6 @@ main_str = "____G_ML__G_"
 initial_population(main_str)
 for k in range(len(initial_strings)):
     all_strings.append(initial_strings[k])
-
 # for k in range(len(initial_strings)):
 #     print("initial: ", initial_strings[k], fitness_function(initial_strings[k]))
 # print("[", end="")
@@ -138,19 +164,29 @@ for k in range(len(initial_strings)):
 # print("Score:", the_list[0], ", Steps:", the_list[1], ", Win:", the_list[2], ", Mushroom:", the_list[3],
 #       ", Additional:", the_list[4])
 
-for k in range(len(all_strings)):
-    all_chromosomes.append(
-        Chromosome(all_strings[k], fitness_function(all_strings[k]), give_probability(all_strings[k])))
 
 for k in all_chromosomes:
     print(k.string, k.fitness, k.probability)
 
 print("---------------------")
-select_delete_string()
 
+
+# print("selection completed\n|||||||\n")
+
+
+def first_method():
+    for i in range(len(all_strings)):
+        all_chromosomes.append(
+            Chromosome(all_strings[i], fitness_function(all_strings[i]), give_probability(all_strings[i])))
+    select_delete_string()
+
+
+
+first_method()
+
+print(initial_strings)
+print("---------------------")
+print(all_strings)
+print("---------------------")
 for k in all_chromosomes:
     print(k.string, k.fitness, k.probability)
-
-print("selection completed\n|||||||\n")
-
-z = crossover(all_chromosomes[3].string, all_chromosomes[4].string)
