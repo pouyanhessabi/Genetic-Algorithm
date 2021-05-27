@@ -218,3 +218,7 @@ for k in range(10):
         print(z.string, z.fitness)
     print("avg: ", avg)
     first_method()
+
+
+
+print("test1")
