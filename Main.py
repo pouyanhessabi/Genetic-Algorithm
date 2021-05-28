@@ -219,4 +219,4 @@ for k in range(10):
     print("avg: ", avg)
     first_method()
 
-print("crossover with mutation p1")
+print("crossover with mutation p1 v2")
