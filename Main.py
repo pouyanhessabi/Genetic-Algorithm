@@ -1,14 +1,12 @@
 import random
-from itertools import filterfalse
 
 main_str: str
 initial_strings = []
-all_strings = []
 all_chromosomes = []
 
 
 class Chromosome:
-    def __init__(self, string: str, fitness: int):
+    def __init__(self, string: list, fitness: int):
         self.string = string
         self.fitness = fitness
 
@@ -20,8 +18,8 @@ def initial_population(string: str):
     for i in range(200):
         for j in range(length):
             random_list.append(random.choice(tmp_list))
-        initial_strings.append(random_list)
-        random_list = []
+        initial_strings.append(random_list.copy())
+        random_list.clear()
 
 
 def check_sequence(string: str):
@@ -89,11 +87,11 @@ def fitness_function(string: str):
     return score
 
 
-def give_probability(string: str):
-    sum_of_fitness = 0
-    for i in range(len(all_strings)):
-        sum_of_fitness += fitness_function(all_strings[i])
-    return fitness_function(string) / sum_of_fitness
+# def give_probability(string: str):
+#     sum_of_fitness = 0
+#     for i in range(len(all_strings)):
+#         sum_of_fitness += fitness_function(all_strings[i])
+#     return fitness_function(string) / sum_of_fitness
 
 
 def select_delete_string():
@@ -101,19 +99,7 @@ def select_delete_string():
         for j in range(len(all_chromosomes) - i - 1):
             if all_chromosomes[j].fitness <= all_chromosomes[j + 1].fitness:
                 all_chromosomes[j], all_chromosomes[j + 1] = all_chromosomes[j + 1], all_chromosomes[j]
-    # remove from all string
-    for i in range(int(len(all_chromosomes) / 2), len(all_chromosomes)):
-        for j in range(len(all_strings)):
-            if all_chromosomes[i].string == all_strings[j]:
-                # print("pop: ", all_strings.pop(j))
-                all_strings.pop(j)
-                all_strings.insert(j, "null")
-    tmp = 0
-    for i in range(len(all_strings)):
-        if all_strings[i] == "null":
-            tmp += 1
-    for i in range(tmp):
-        all_strings.remove("null")
+
     # remove from all chromosomes
     for i in range(int(len(all_chromosomes) / 2)):
         all_chromosomes.pop()
@@ -139,7 +125,6 @@ def save_good_gene():
     for i in all_chromosomes:
         if i.fitness >= average:
             good_gene.append(i)
-
     return list(dict.fromkeys(good_gene))
 
 
@@ -161,9 +146,8 @@ def mutation(string: list):
 main_str = "_G_ML_G_"
 initial_population(main_str)
 for k in range(len(initial_strings)):
-    all_strings.append(initial_strings[k])
-
-
+    all_chromosomes.append(
+        Chromosome(initial_strings[k], fitness_function(initial_strings[k])))
 # for k in range(len(initial_strings)):
 #     print("initial: ", initial_strings[k], fitness_function(initial_strings[k]))
 # print("[", end="")
@@ -181,17 +165,18 @@ for k in range(len(initial_strings)):
 
 
 def first_method():
+    # delete half of all_chromosome, the chromosomes have low fitness
     select_delete_string()
+    # save good genes, the genes have higher fitness than average
     good_gene = save_good_gene()
-    random_list = random.sample(range(len(all_chromosomes)), (len(all_chromosomes)))
+    random_list = random.sample(range(int(len(all_chromosomes) / 2)), int(len(all_chromosomes) / 2))
+    print("\nkhob", len(all_chromosomes), random_list)
     combined_string = []
     for i in range(len(random_list)):
         # print("first and second", all_chromosomes[i].string, all_chromosomes[random_list[i]].string)
-        combined_string.append(combine_string(all_chromosomes[i].string, all_chromosomes[random_list[i]].string))
+        combined_string.append(combine_string(all_chromosomes[random_list[i]].string,
+                                              all_chromosomes[len(all_chromosomes) - 1 - random_list[i]].string))
     all_chromosomes.clear()
-    all_strings.clear()
-    for i in range(len(combined_string)):
-        all_strings.append(combined_string[i])
     for i in range(len(combined_string)):
         all_chromosomes.append(
             Chromosome(combined_string[i], fitness_function(combined_string[i])))
@@ -205,18 +190,17 @@ def first_method():
         all_chromosomes[i] = Chromosome(tmp_string, fitness_function(tmp_string))
 
 
-for k in range(len(all_strings)):
-    all_chromosomes.append(
-        Chromosome(all_strings[k], fitness_function(all_strings[k])))
+
 for k in range(10):
     print("---------------------\n")
     avg = 0
     for z in range(len(all_chromosomes)):
         avg += all_chromosomes[z].fitness
+    if len(all_chromosomes) == 0:
+        print("No Chromosomes")
+        break
     avg = avg / len(all_chromosomes)
     for z in all_chromosomes:
         print(z.string, z.fitness)
     print("avg: ", avg)
     first_method()
-
-print("mutation p1 final")
