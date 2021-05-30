@@ -25,36 +25,34 @@ def initial_population(string: str, number_of_chromosomes):
 def check_sequence(string: str):
     my_tuple: tuple
     check = True
-    steps_g = 0
-    steps_l = 0
-    steps_end = 0
-
+    lost_points = []
     for i in range(len(main_str) - 1):
-        if main_str[i + 1] == 'G' and string[i] != 1:
+        # it will win string[i] == 1 or (string[i - 1] == 1 and i >= 1)
+        if main_str[i + 1] == 'G' and not (string[i] == 1 or (string[i - 1] == 1 and i >= 1)):
             check = False
-            steps_g = i
             break
-
-    for i in range(len(main_str) - 1):
         if main_str[i + 1] == 'L' and string[i] != 2:
             check = False
-            steps_l = i
             break
 
     if check:
         steps_end = len(string)
     else:
         for i in range(len(main_str) - 1):
-            if (main_str[len(main_str) - 1 - i] == 'G' and string[len(main_str) - 2 - i] != 1) or (
-                    main_str[len(main_str) - 1 - i] == 'L' and string[len(main_str) - 2 - i] != 2):
-                steps_end = i
+            if ((main_str[i + 1] == 'G') and not (string[i] == 1 or (string[i - 1] == 1 and i >= 1))) or \
+                    (main_str[i + 1] == 'L' and string[i] != 2):
+                lost_points.append(i)
+        for i in range(1, len(lost_points)):
+            lost_points[i] -= lost_points[i - 1]
+        steps_end = max(lost_points)
 
-    my_tuple = (check, max(steps_l, steps_g, steps_end))
+    if len(lost_points) == 0:
+        lost_points.append(steps_end)
+    my_tuple = (check, max(max(lost_points), steps_end))
     return my_tuple
 
 
-def fitness_function(string: str):
-    my_list = []
+def fitness_function(string: list):
     score = 0
     win = 5
     mushroom = 0
@@ -65,8 +63,6 @@ def fitness_function(string: str):
     else:
         steps = my_tuple[1]
         win = 0
-
-    score += my_tuple[1] + win
     for i in range(len(main_str) - 1):
         if main_str[i + 1] == 'M' and string[i] != 1:
             mushroom += 2
@@ -77,15 +73,13 @@ def fitness_function(string: str):
             if main_str[i + 1] != 'G' and main_str[i + 2] != 'G' and string[i] == 1:
                 additional_score -= 0.5
 
-    score += mushroom + additional_score
-    # my_list.append(score)
-    # my_list.append(steps)
-    # my_list.append(win)
-    # my_list.append(mushroom)
-    # my_list.append(additional_score)
-    # return my_list
-    return score
+    last_jump = 0
+    if string[len(string) - 1] == 1:
+        last_jump += 1
 
+    score += mushroom + additional_score + steps + last_jump + win
+    # print("Score:", score, "steps:", steps, "win", win, "mushroom:", mushroom, "additional:", additional_score)
+    return score
 
 
 def select_delete_string():
