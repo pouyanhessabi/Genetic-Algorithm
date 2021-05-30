@@ -219,7 +219,4 @@ for k in range(10):
     print("avg: ", avg)
     first_method()
 
-
-
-print("test1")
-print("test2")
+print("mutation p1 final")
