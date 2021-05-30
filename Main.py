@@ -11,11 +11,11 @@ class Chromosome:
         self.fitness = fitness
 
 
-def initial_population(string: str):
+def initial_population(string: str, number_of_chromosomes):
     length = len(string)
     random_list = []
     tmp_list = [0] * 3 + [1] + [2]
-    for i in range(20):
+    for i in range(number_of_chromosomes):
         for j in range(length):
             random_list.append(random.choice(tmp_list))
         initial_strings.append(random_list.copy())
@@ -87,12 +87,6 @@ def fitness_function(string: str):
     return score
 
 
-# def give_probability(string: str):
-#     sum_of_fitness = 0
-#     for i in range(len(all_strings)):
-#         sum_of_fitness += fitness_function(all_strings[i])
-#     return fitness_function(string) / sum_of_fitness
-
 
 def select_delete_string():
     for i in range(len(all_chromosomes) - 1):
@@ -105,7 +99,27 @@ def select_delete_string():
         all_chromosomes.pop()
 
 
-def combine_string(string1: str, string2: str):
+def selection_for_second_method():
+    all_fitness = []
+    for i in all_chromosomes:
+        all_fitness.append(i.fitness)
+    probabilities = []
+    sum_fitness = sum(all_fitness)
+    for i in all_chromosomes:
+        probabilities.append(int(5000 * i.fitness / sum_fitness))
+    # 5000 is good for 500 chromosome
+    weighted_probability = []
+    for i in probabilities:
+        for j in range(i):
+            weighted_probability.append(i)
+    random_list = random.sample(range(len(all_chromosomes)), int(len(all_chromosomes) / 2))
+    # sort in reverse, so that we can easily pop elements without changing index of them
+    random_list = sorted(random_list, reverse=True)
+    for i in random_list:
+        all_chromosomes.pop(i)
+
+
+def combine_string(string1: list, string2: list):
     list3 = []
     if len(string1) != len(string2):
         print("\n\n|||||Size of lists are not equal||||\n\n")
@@ -113,6 +127,20 @@ def combine_string(string1: str, string2: str):
         list3.append(string1[i])
     for i in range(int(len(string1) / 2), len(string2)):
         list3.append(string2[i])
+    return list3
+
+
+def combine_3_part(string1: list, string2: list):
+    # list 3 = 1/3 * string1 + 1/3 * string2 + 1/3 * string1
+    list3 = []
+    if len(string1) != len(string2):
+        print("\n\n|||||Size of lists are not equal||||\n\n")
+    for i in range(int(len(string1) / 3)):
+        list3.append(string1[i])
+    for i in range(int(len(string1) / 3), 2 * int(len(string1) / 3)):
+        list3.append(string2[i])
+    for i in range(2 * int(len(string1) / 3), len(string1)):
+        list3.append(string1[i])
     return list3
 
 
@@ -137,30 +165,6 @@ def mutation(string: list):
         tmp = 0
     string[random_index] = tmp
     return string
-
-
-# file_name = "level1.txt"
-# f = open(file_name, "r")
-# main_str = f.readline()
-
-main_str = "_G_ML_G_"
-initial_population(main_str)
-for k in range(len(initial_strings)):
-    all_chromosomes.append(
-        Chromosome(initial_strings[k], fitness_function(initial_strings[k])))
-
-
-# for k in range(len(initial_strings)):
-#     print("initial: ", initial_strings[k], fitness_function(initial_strings[k]))
-# print("[", end="")
-# for k in range(len(main_str)):
-#     print(main_str[k], end=", ")
-# print()
-
-# print(initial_strings[0])
-# the_list = fitness_function(initial_strings[0])
-# print("Score:", the_list[0], ", Steps:", the_list[1], ", Win:", the_list[2], ", Mushroom:", the_list[3],
-#       ", Additional:", the_list[4])
 
 
 def first_method():
@@ -188,6 +192,38 @@ def first_method():
         all_chromosomes[i] = Chromosome(tmp_string.copy(), fitness_function(tmp_string.copy()))
 
 
+def second_method():
+    # delete half of chromosomes randomly(weighted)
+    selection_for_second_method()
+    # save good genes, the genes have higher fitness than average
+    good_gene = save_good_gene()
+    random_list = random.sample(range(int(len(all_chromosomes) / 2)), int(len(all_chromosomes) / 2))
+    combined_string = []
+    # combine random chromosomes
+    for i in range(len(random_list)):
+        combined_string.append(combine_3_part(all_chromosomes[random_list[i]].string,
+                                              all_chromosomes[len(all_chromosomes) - 1 - random_list[i]].string))
+    all_chromosomes.clear()
+    for i in range(len(combined_string)):
+        all_chromosomes.append(
+            Chromosome(combined_string[i], fitness_function(combined_string[i])))
+    for i in range(len(good_gene)):
+        all_chromosomes.append(good_gene[i])
+    # mutation
+    mutation_number = 0.5
+    number = int(len(all_chromosomes) * mutation_number)
+    for i in range(number):
+        tmp_string = mutation(all_chromosomes[i].string)
+        all_chromosomes[i] = Chromosome(tmp_string.copy(), fitness_function(tmp_string.copy()))
+
+
+# file_name = "level1.txt"
+# f = open(file_name, "r")
+# main_str = f.readline()
+
+
+command = int(input("first(1) or second(2) method?"))
+
 """
 first method:
     initial population: 200
@@ -196,40 +232,52 @@ first method:
     crossover: divide each string into 2 part
     mutation: 0.2
 """
-for k in range(10):
-    if len(all_chromosomes) == 0:
-        print("No Chromosomes")
-        break
-    print("---------------------")
-    first_method()
-    avg = 0
-    for z in range(len(all_chromosomes)):
-        avg += all_chromosomes[z].fitness
+if command == 1:
+    main_str = "_G_ML_G_"
+    initial_population(main_str, 200)
+    for k in range(len(initial_strings)):
+        all_chromosomes.append(
+            Chromosome(initial_strings[k], fitness_function(initial_strings[k])))
+    for k in range(10):
+        if len(all_chromosomes) == 0:
+            print("No Chromosomes")
+            break
+        print("---------------------")
+        first_method()
+        avg = 0
+        for z in range(len(all_chromosomes)):
+            avg += all_chromosomes[z].fitness
 
-    avg = avg / len(all_chromosomes)
-    for z in all_chromosomes:
-        print(z.string, z.fitness)
-    print("avg: ", avg)
+        avg = avg / len(all_chromosomes)
+        for z in all_chromosomes:
+            print(z.string, z.fitness)
+        print("avg: ", avg)
 
 """
-first method:
+second method:
     initial population: 500
     fitness: do not consider win
     selection: weighted random
     crossover: divide each string into 3 part
     mutation: 0.5
 """
-for k in range(10):
-    if len(all_chromosomes) == 0:
-        print("No Chromosomes")
-        break
-    print("---------------------")
-    first_method()
-    avg = 0
-    for z in range(len(all_chromosomes)):
-        avg += all_chromosomes[z].fitness
+if command == 2:
+    main_str = "_G_ML_G_"
+    initial_population(main_str, 500)
+    for k in range(len(initial_strings)):
+        all_chromosomes.append(
+            Chromosome(initial_strings[k], fitness_function(initial_strings[k])))
 
-    avg = avg / len(all_chromosomes)
-    for z in all_chromosomes:
-        print(z.string, z.fitness)
-    print("avg: ", avg)
+    for k in range(10):
+        if len(all_chromosomes) == 0:
+            print("No Chromosomes")
+            break
+        print("---------------------")
+        second_method()
+        avg = 0
+        for z in range(len(all_chromosomes)):
+            avg += all_chromosomes[z].fitness
+        avg = avg / len(all_chromosomes)
+        for z in all_chromosomes:
+            print(z.string, z.fitness)
+        print("avg: ", avg)
