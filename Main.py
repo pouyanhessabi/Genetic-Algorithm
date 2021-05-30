@@ -103,14 +103,15 @@ def selection_for_second_method():
         probabilities.append(int(5000 * i.fitness / sum_fitness))
     # 5000 is good for 500 chromosome
     weighted_probability = []
-    for i in probabilities:
-        for j in range(i):
-            weighted_probability.append(i)
-    random_list = random.sample(range(len(all_chromosomes)), int(len(all_chromosomes) / 2))
+    for i in range(len(probabilities)):
+        for j in range(probabilities[i]):
+            weighted_probability.append(all_chromosomes[i])
+    random_list = random.sample(range(len(weighted_probability)), int(len(all_chromosomes) / 2))
     # sort in reverse, so that we can easily pop elements without changing index of them
     random_list = sorted(random_list, reverse=True)
+    all_chromosomes.clear()
     for i in random_list:
-        all_chromosomes.pop(i)
+        all_chromosomes.append(weighted_probability.pop(i))
 
 
 def combine_string(string1: list, string2: list):
@@ -187,10 +188,10 @@ def first_method():
 
 
 def second_method():
-    # delete half of chromosomes randomly(weighted)
-    selection_for_second_method()
     # save good genes, the genes have higher fitness than average
     good_gene = save_good_gene()
+    # delete half of chromosomes randomly(weighted)
+    selection_for_second_method()
     random_list = random.sample(range(int(len(all_chromosomes) / 2)), int(len(all_chromosomes) / 2))
     combined_string = []
     # combine random chromosomes
