@@ -15,7 +15,7 @@ def initial_population(string: str):
     length = len(string)
     random_list = []
     tmp_list = [0] * 3 + [1] + [2]
-    for i in range(200):
+    for i in range(20):
         for j in range(length):
             random_list.append(random.choice(tmp_list))
         initial_strings.append(random_list.copy())
@@ -148,6 +148,8 @@ initial_population(main_str)
 for k in range(len(initial_strings)):
     all_chromosomes.append(
         Chromosome(initial_strings[k], fitness_function(initial_strings[k])))
+
+
 # for k in range(len(initial_strings)):
 #     print("initial: ", initial_strings[k], fitness_function(initial_strings[k]))
 # print("[", end="")
@@ -161,19 +163,15 @@ for k in range(len(initial_strings)):
 #       ", Additional:", the_list[4])
 
 
-# print("selection completed\n|||||||\n")
-
-
 def first_method():
     # delete half of all_chromosome, the chromosomes have low fitness
     select_delete_string()
     # save good genes, the genes have higher fitness than average
     good_gene = save_good_gene()
     random_list = random.sample(range(int(len(all_chromosomes) / 2)), int(len(all_chromosomes) / 2))
-    print("\nkhob", len(all_chromosomes), random_list)
     combined_string = []
+    # combine random chromosomes
     for i in range(len(random_list)):
-        # print("first and second", all_chromosomes[i].string, all_chromosomes[random_list[i]].string)
         combined_string.append(combine_string(all_chromosomes[random_list[i]].string,
                                               all_chromosomes[len(all_chromosomes) - 1 - random_list[i]].string))
     all_chromosomes.clear()
@@ -187,20 +185,51 @@ def first_method():
     number = int(len(all_chromosomes) * mutation_number)
     for i in range(number):
         tmp_string = mutation(all_chromosomes[i].string)
-        all_chromosomes[i] = Chromosome(tmp_string, fitness_function(tmp_string))
+        all_chromosomes[i] = Chromosome(tmp_string.copy(), fitness_function(tmp_string.copy()))
 
 
-
+"""
+first method:
+    initial population: 200
+    fitness: consider win
+    selection: half of the best
+    crossover: divide each string into 2 part
+    mutation: 0.2
+"""
 for k in range(10):
-    print("---------------------\n")
-    avg = 0
-    for z in range(len(all_chromosomes)):
-        avg += all_chromosomes[z].fitness
     if len(all_chromosomes) == 0:
         print("No Chromosomes")
         break
+    print("---------------------")
+    first_method()
+    avg = 0
+    for z in range(len(all_chromosomes)):
+        avg += all_chromosomes[z].fitness
+
     avg = avg / len(all_chromosomes)
     for z in all_chromosomes:
         print(z.string, z.fitness)
     print("avg: ", avg)
+
+"""
+first method:
+    initial population: 500
+    fitness: do not consider win
+    selection: weighted random
+    crossover: divide each string into 3 part
+    mutation: 0.5
+"""
+for k in range(10):
+    if len(all_chromosomes) == 0:
+        print("No Chromosomes")
+        break
+    print("---------------------")
     first_method()
+    avg = 0
+    for z in range(len(all_chromosomes)):
+        avg += all_chromosomes[z].fitness
+
+    avg = avg / len(all_chromosomes)
+    for z in all_chromosomes:
+        print(z.string, z.fitness)
+    print("avg: ", avg)
