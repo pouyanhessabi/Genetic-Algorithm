@@ -1,4 +1,6 @@
 import random
+import matplotlib.pyplot as plt
+import numpy as np
 
 main_str: str
 initial_strings = []
@@ -164,9 +166,10 @@ def mutation(string: list):
 
 def first_method():
     # delete half of all_chromosome, the chromosomes have low fitness
-    select_delete_string()
-    # save good genes, the genes have higher fitness than average
     good_gene = save_good_gene()
+    # save good genes, the genes have higher fitness than average
+    select_delete_string()
+
     random_list = random.sample(range(int(len(all_chromosomes) / 2)), int(len(all_chromosomes) / 2))
     combined_string = []
     # combine random chromosomes
@@ -212,13 +215,39 @@ def second_method():
         all_chromosomes[i] = Chromosome(tmp_string.copy(), fitness_function(tmp_string.copy()))
 
 
-# file_name = "level1.txt"
-# f = open(file_name, "r")
-# main_str = f.readline()
+def draw(y1: list, y2: list, y3: list):
+    fig = plt.figure()
+    ax1 = fig.add_subplot(221)
+    ax2 = fig.add_subplot(122)
+    ax3 = fig.add_subplot(223)
+
+    ax1.title.set_text('Max fitness')
+    ax2.title.set_text('Average fitness')
+    ax3.title.set_text('Min fitness')
+
+    ax1.set_ylim([0, 20])
+    ax2.set_ylim([0, 20])
+    ax3.set_ylim([0, 20])
+
+    tmp_list = list(range(0, 21, 2))
+    ax1.set_xticks(tmp_list)
+    ax2.set_xticks(tmp_list)
+    ax3.set_xticks(tmp_list)
+
+    ax1.plot(y1)
+    ax2.plot(y2)
+    ax3.plot(y3)
+    plt.show()
+    pass
+
+
+file_name = "level1.txt"
+f = open(file_name, "r")
+main_str = f.readline()
 
 
 command = int(input("first(1) or second(2) method?"))
-
+save_chromosomes = []
 """
 first method:
     initial population: 200
@@ -228,12 +257,11 @@ first method:
     mutation: 0.2
 """
 if command == 1:
-    main_str = "_G_ML_G_"
     initial_population(main_str, 200)
     for k in range(len(initial_strings)):
         all_chromosomes.append(
             Chromosome(initial_strings[k], fitness_function(initial_strings[k])))
-    for k in range(10):
+    for k in range(20):
         if len(all_chromosomes) == 0:
             print("No Chromosomes")
             break
@@ -244,10 +272,10 @@ if command == 1:
             avg += all_chromosomes[z].fitness
 
         avg = avg / len(all_chromosomes)
-        for z in all_chromosomes:
-            print(z.string, z.fitness)
+        # for z in all_chromosomes:
+        #     print(z.string, z.fitness)
         print("avg: ", avg)
-
+        save_chromosomes.append(all_chromosomes.copy())
 """
 second method:
     initial population: 500
@@ -257,13 +285,12 @@ second method:
     mutation: 0.5
 """
 if command == 2:
-    main_str = "_G_ML_G_"
     initial_population(main_str, 500)
     for k in range(len(initial_strings)):
         all_chromosomes.append(
             Chromosome(initial_strings[k], fitness_function(initial_strings[k])))
 
-    for k in range(10):
+    for k in range(20):
         if len(all_chromosomes) == 0:
             print("No Chromosomes")
             break
@@ -273,6 +300,25 @@ if command == 2:
         for z in range(len(all_chromosomes)):
             avg += all_chromosomes[z].fitness
         avg = avg / len(all_chromosomes)
-        for z in all_chromosomes:
-            print(z.string, z.fitness)
+        # for z in all_chromosomes:
+        #     print(z.string, z.fitness)
         print("avg: ", avg)
+        save_chromosomes.append(all_chromosomes.copy())
+
+all_fitness_each_level = []
+my_list = []
+for k in range(len(save_chromosomes)):
+    for j in range(len(save_chromosomes[k])):
+        my_list.append(save_chromosomes[k][j].fitness)
+    all_fitness_each_level.append(my_list.copy())
+    my_list.clear()
+
+avg_fitness = []
+max_fitness = []
+min_fitness = []
+for k in all_fitness_each_level:
+    avg_fitness.append(sum(k) / len(k))
+    max_fitness.append(max(k))
+    min_fitness.append(min(k))
+
+draw(max_fitness, avg_fitness, min_fitness)
