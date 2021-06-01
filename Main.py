@@ -1,6 +1,5 @@
 import random
 import matplotlib.pyplot as plt
-import numpy as np
 
 main_str: str
 initial_strings = []
@@ -227,7 +226,7 @@ def draw(y1: list, y2: list, y3: list):
 
     ax1.set_ylim([0, 20])
     ax2.set_ylim([0, 20])
-    ax3.set_ylim([0, 20])
+    ax3.set_ylim([-2, 20])
 
     tmp_list = list(range(0, 21, 2))
     ax1.set_xticks(tmp_list)
@@ -241,12 +240,13 @@ def draw(y1: list, y2: list, y3: list):
     pass
 
 
-file_name = "level1.txt"
+input_file = input("Enter number of the file?")
+file_name = "level" + input_file + ".txt"
 f = open(file_name, "r")
 main_str = f.readline()
 
-
 command = int(input("first(1) or second(2) method?"))
+
 save_chromosomes = []
 """
 first method:
@@ -265,7 +265,7 @@ if command == 1:
         if len(all_chromosomes) == 0:
             print("No Chromosomes")
             break
-        print("---------------------")
+        # print("---------------------")
         first_method()
         avg = 0
         for z in range(len(all_chromosomes)):
@@ -274,7 +274,7 @@ if command == 1:
         avg = avg / len(all_chromosomes)
         # for z in all_chromosomes:
         #     print(z.string, z.fitness)
-        print("avg: ", avg)
+        # print("avg: ", avg)
         save_chromosomes.append(all_chromosomes.copy())
 """
 second method:
@@ -294,7 +294,7 @@ if command == 2:
         if len(all_chromosomes) == 0:
             print("No Chromosomes")
             break
-        print("---------------------")
+        # print("---------------------")
         second_method()
         avg = 0
         for z in range(len(all_chromosomes)):
@@ -302,7 +302,7 @@ if command == 2:
         avg = avg / len(all_chromosomes)
         # for z in all_chromosomes:
         #     print(z.string, z.fitness)
-        print("avg: ", avg)
+        # print("avg: ", avg)
         save_chromosomes.append(all_chromosomes.copy())
 
 all_fitness_each_level = []
