@@ -164,22 +164,36 @@ def mutation(string: list):
 
 
 def first_method():
-    # delete half of all_chromosome, the chromosomes have low fitness
-    good_gene = save_good_gene()
     # save good genes, the genes have higher fitness than average
+    good_gene = save_good_gene()
+    # delete half of all_chromosome, the chromosomes have low fitness
     select_delete_string()
 
-    random_list = random.sample(range(int(len(all_chromosomes) / 2)), int(len(all_chromosomes) / 2))
+    random_list = random.sample(range(len(all_chromosomes)), len(all_chromosomes))
     combined_string = []
     # combine random chromosomes
     for i in range(len(random_list)):
         combined_string.append(combine_string(all_chromosomes[random_list[i]].string,
                                               all_chromosomes[len(all_chromosomes) - 1 - random_list[i]].string))
+        combined_string.append(combine_string(all_chromosomes[len(all_chromosomes) - 1 - random_list[i]].string,
+                                              all_chromosomes[random_list[i]].string))
     all_chromosomes.clear()
     for i in range(len(combined_string)):
         all_chromosomes.append(
             Chromosome(combined_string[i], fitness_function(combined_string[i])))
-    for i in range(len(good_gene)):
+
+    # add 1/4 good_gene
+    new_length_good_gene = int(len(good_gene) / 4)
+    # sort by fitness
+    for i in range(len(all_chromosomes) - 1):
+        for j in range(len(all_chromosomes) - i - 1):
+            if all_chromosomes[j].fitness <= all_chromosomes[j + 1].fitness:
+                all_chromosomes[j], all_chromosomes[j + 1] = all_chromosomes[j + 1], all_chromosomes[j]
+
+    # remove 1/4 from all chromosomes
+    for i in range(new_length_good_gene):
+        all_chromosomes.pop()
+    for i in range(new_length_good_gene):
         all_chromosomes.append(good_gene[i])
     # mutation
     mutation_number = 0.1
@@ -194,18 +208,33 @@ def second_method():
     good_gene = save_good_gene()
     # delete half of chromosomes randomly(weighted)
     selection_for_second_method()
-    random_list = random.sample(range(int(len(all_chromosomes) / 2)), int(len(all_chromosomes) / 2))
+    random_list = random.sample(range(len(all_chromosomes)), len(all_chromosomes))
     combined_string = []
     # combine random chromosomes
     for i in range(len(random_list)):
         combined_string.append(combine_3_part(all_chromosomes[random_list[i]].string,
                                               all_chromosomes[len(all_chromosomes) - 1 - random_list[i]].string))
+        combined_string.append(combine_3_part(all_chromosomes[len(all_chromosomes) - 1 - random_list[i]].string,
+                                              all_chromosomes[random_list[i]].string))
     all_chromosomes.clear()
     for i in range(len(combined_string)):
         all_chromosomes.append(
             Chromosome(combined_string[i], fitness_function(combined_string[i])))
-    for i in range(len(good_gene)):
+
+    # add 1/4 good_gene
+    new_length_good_gene = int(len(good_gene) / 4)
+    # sort by fitness
+    for i in range(len(all_chromosomes) - 1):
+        for j in range(len(all_chromosomes) - i - 1):
+            if all_chromosomes[j].fitness <= all_chromosomes[j + 1].fitness:
+                all_chromosomes[j], all_chromosomes[j + 1] = all_chromosomes[j + 1], all_chromosomes[j]
+
+    # remove 1/4 from all chromosomes
+    for i in range(new_length_good_gene):
+        all_chromosomes.pop()
+    for i in range(new_length_good_gene):
         all_chromosomes.append(good_gene[i])
+
     # mutation
     mutation_number = 0.5
     number = int(len(all_chromosomes) * mutation_number)
@@ -224,9 +253,9 @@ def draw(y1: list, y2: list, y3: list):
     ax2.title.set_text('Average fitness')
     ax3.title.set_text('Min fitness')
 
-    ax1.set_ylim([0, 20])
-    ax2.set_ylim([0, 20])
-    ax3.set_ylim([-2, 20])
+    ax1.set_ylim([0, 100])
+    ax2.set_ylim([0, 100])
+    ax3.set_ylim([-2, 100])
 
     tmp_list = list(range(0, 21, 2))
     ax1.set_xticks(tmp_list)
@@ -276,7 +305,7 @@ if command == 1:
         #     print(z.string, z.fitness)
         # print("avg: ", avg)
         save_chromosomes.append(all_chromosomes.copy())
-"""
+""" 
 second method:
     initial population: 500
     fitness: do not consider win
@@ -320,5 +349,11 @@ for k in all_fitness_each_level:
     avg_fitness.append(sum(k) / len(k))
     max_fitness.append(max(k))
     min_fitness.append(min(k))
+
+for k in range(len(save_chromosomes)):
+    for j in save_chromosomes[k]:
+        if max_fitness[k] == j.fitness:
+            print("Best Chromosome in level", k, "is", j.string, "with fitness:", j.fitness)
+            break
 
 draw(max_fitness, avg_fitness, min_fitness)
