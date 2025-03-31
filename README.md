@@ -28,7 +28,7 @@ that you can choose from. Also you can the number of `initial population` and `m
 
 Check full description (in persian): [here](https://github.com/pouyanhessabi/AI-project2-genetic-algorithm/blob/main/AI_P2.pdf)
 <br>
-Project report (in persian): [here](https://github.com/Amirhossein-Rajabpour/Genetic-Algorithm/blob/main/AI_P2_Report.pdf)
+Project report (in persian): [here](https://github.com/pouyanhessabi/Genetic-Algorithm/blob/main/Report.pdf)
 <br>
 Check our other AI Course projects:
 * [Project 1: Searching Algorithms (IDS, BBFS, A*)](https://github.com/pouyanhessabi/AI-project1-searching-algorithms)
